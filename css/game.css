@@ -36,8 +36,77 @@
 	text-align: center;
     font-family: game;
     font-size: 30px;
+    transition:color 0.5s linear;
 }
 .login-con:hover button{
 	color: green;
-	transition:color 0.5s linear;
 }
+.main-con{
+	width: 1200px;
+	height: 600px;
+	margin: auto;
+	background-image: url(../img/main-bg.jpg);
+	position: relative;
+}
+.main-con .userinfo{
+	position:absolute;
+	border: none;
+	width:250px;
+	height: 250px;
+	top:70px;
+	left:100px;
+}
+.main-con .online{
+	position: absolute;
+	width: 285px;
+	height: 175px;
+	border: 1px solid red;
+	left:100px;
+	bottom:135px;
+}
+.main-con .head{
+}
+.main-con .head:after{
+	content: '';
+	display: block;
+	clear:both
+}
+.main-con .head:before{
+	content: '';
+	display: block;
+   clear: both;
+}
+.main-con .head h3{
+	float: left;
+	margin: 0px;
+}
+.main-con .head span{
+	float: right;
+}
+.main-con .body{
+	height: 140px;
+	overflow-y: scroll;
+}
+.main-con .body table{
+	width:100%;
+}
+.main-con .body table tr{
+	height: 30px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
