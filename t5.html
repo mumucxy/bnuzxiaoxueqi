@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>buy breakfast</title>
+	</head>
+	<script type="text/javascript">
+		window.onload=function(){
+			document.getElementById('pay').onclick = function(){
+				var food =document.getElementById("food").value;
+				var num =document.getElementById("num").value;
+				
+				var money = 0;
+				if(food == "baozi"){
+					money = 1.5*num;
+				}else if(food == "mantou")
+				{
+					money = 1*num;
+				}
+				else if(food == "jidan")
+				{
+					money = 2*num;
+				}
+				money = money.toFixed(2);
+				var arr =money.split(".");
+				money = "";
+				var temp =arr[0];
+				var index =Math.ceil(temp.length/3)-1;
+				for(var i=0;i<index;i++){
+					money =","+temp.slice(temp.length - 3)+money;
+					temp = temp.slice(0,temp.length - 3);
+				}
+				money =temp+money+'.'+arr[1];
+				alert("total"+ money + "yuan");
+			}
+			
+		}
+	</script>
+	<body>
+		food
+		<select id="food">
+			<option>baozi</option>
+			<option>mantou</option>
+			<option>jidan</option>
+		</select>
+		number
+		<input type="number" name="" id="num" value=""/>
+		<button id="pay">pay</button>
+	</body>
+</html>
