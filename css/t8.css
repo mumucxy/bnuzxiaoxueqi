@@ -1,0 +1,13 @@
+.contain{
+	margin: auto;
+	width: 700px;
+}
+.contain .left {
+	float: left;
+	width: 150px;
+	
+}
+.contain .right {
+	float: right;
+	width: 150px;
+}
