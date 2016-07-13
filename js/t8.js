@@ -25,7 +25,12 @@ $(function(){
         setTimeout(function(){
         	that.css("transform","translate(0px,0px)");
         	temp.css("transform","translate(0px,0px)")
-        })
+        });
+        
+        var diff = type -type2;
+        if(diff == 0){
+        	$
+        }
         
    });
 });

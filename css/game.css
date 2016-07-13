@@ -150,7 +150,16 @@ height: 180px;
 	height: 25px;
 	border:2px solid black;
 	border-radius: 10px;
-	margin: auto;
+	outline: none;
+}
+.main-con .chat .footer button[type=button]{
+
+	border:none;
+	background-color: transparent;
+	outline: none;
+	font-size: 17px;
+	margin-top: 5px;
+
 }
 
 
@@ -160,6 +169,7 @@ position:absolute;
 	bottom: 45px;
 	height:35px;
 	width: 170px;
+	background-color: transparent;;
 	border-color:transparent;
 	border:none;
 	outline: none;

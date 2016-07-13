@@ -4,16 +4,32 @@
 		<meta charset="UTF-8">
 		<title>login</title>
 		<link rel="stylesheet" type="text/css" href="css/game.css"/>
+		<script type="text/javascript" src="js/jquery-1.10.2.min.js" ></script>
 	</head>
 	<body>
 		<div class="login-con">
-			<input type="text" name="" id="" value="" placeholder="enter the name" />
-			<button onclick="goMain()">enter</button>
+			<input type="text" name="" id="nickname" value="" placeholder="enter the name" />
+			<button id="joingame">enter</button>
 		</div>
 	</body>
 	<script type="text/javascript">
-	function goMain(){
-		window.location.href="main.html";
-	}	
+	$(function(){
+		var user = localStorage.getItem("user")
+		if(user){
+			window.location.href="main.html";
+		}
+		$("#joingame").click(function(){
+			var user ={
+				nickname:$("#nickname").val(),
+				id:null,
+				win:0,
+				total:0,
+				status:0
+			}
+			localStorage.setItem("user",JSON.stringify(user));
+			window.location.href="main.html";
+		});
+	});
+	
 	</script>
 </html>

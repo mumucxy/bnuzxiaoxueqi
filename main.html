@@ -4,16 +4,15 @@
 		<meta charset="UTF-8">
 		<title>main</title>
 		<link rel="stylesheet" type="text/css" href="css/game.css"/>
+		<script type="text/javascript" src="js/jquery-1.10.2.min.js" ></script>
+		<script type="text/javascript" src="js/data.js" ></script>
 	</head>
 	<body>
 		<div class="main-con">
 			<div class="userinfo">
-			<h2>xiaoyang</h2>
-			<p>ID:123456789</p>
-			<p>
-				shengchang:0
-				shenglv:0%
-			</p>
+			<h1></h1>
+			<p></p>
+			<p></p>
 			</div>
 			<div class="online">
 				<div class="head">
@@ -21,54 +20,7 @@
 					<span>76/98</span>
 				</div>
 				<div class="body">
-					<table>
-						<tr>
-							<td>player1</td>
-							<td>123456789</td>
-							<td>online</td>
-						</tr>
-						<tr>
-							<td>player1</td>
-							<td>123456789</td>
-							<td>online</td>
-						</tr>
-						<tr>
-							<td>player1</td>
-							<td>123456789</td>
-							<td>online</td>
-						</tr>
-						<tr>
-							<td>player1</td>
-							<td>123456789</td>
-							<td>online</td>
-						</tr>
-						<tr>
-							<td>player1</td>
-							<td>123456789</td>
-							<td>online</td>
-						</tr>
-						<tr>
-							<td>player1</td>
-							<td>123456789</td>
-							<td>online</td>
-						</tr>
-						
-						<tr>
-							<td>player1</td>
-							<td>123456789</td>
-							<td>online</td>
-						</tr>
-						<tr>
-							<td>player1</td>
-							<td>123456789</td>
-							<td>online</td>
-						</tr>
-						<tr>
-							<td>player1</td>
-							<td>123456789</td>
-							<td>online</td>
-						</tr>
-					</table>
+					<table>	</table>
 				</div>
 			</div>
 			<div class="rooms">
@@ -76,18 +28,6 @@
 					<h3>room</h3>
 				</div>
 				<div class="body">
-					<div>
-						<img src="img/room.png" />
-						<p>lose</p>
-					</div>
-					<div>
-						<img src="img/room.png" />
-						<p>lose</p>
-					</div>
-					<div>
-						<img src="img/room.png" />
-						<p>lose</p>
-					</div>
 				</div>
 			</div>
 			<div class="chat">
@@ -96,19 +36,107 @@
 				</div>
 				<div class="body">
 					<ul>
-						<li>player1:how is the game?</li>
-						<li>player1:how is the game?</li>
-						<li>player1:how is the game?</li>
-						<li style="text-align: right;">this game is great:xiaoyang</li>
+
 					</ul>
 				</div>
 				<div class="footer">
-					<input type="text" name="" id="" value=""/>
-					<button>send</button>
+					<input type="text" name="" id="chatmsg" value=""/>
+					<button type="button" id="sendchat">send</button>
 				</div>
 			</div>
 			<input type="text" name="" id="roomname" value="" />
-			<button id="createroom">createroom</button>
+			<button id="createroom">创建</button>
 		</div>
 	</body>
+    <script type="text/javascript">
+    var user = null;
+    	$(function(){
+    	 user =localStorage.getItem("user");
+    		if(!user){
+    			window.location.href="login.html";
+    			return;
+    		}else {
+    			user=JSON.parse(user);
+    		}
+    		
+    	$("#sendchat").click(function(){
+    		var chat ={
+    			nickname:user.nickname,
+    			msg:$("#chatmsg").val()
+    		}
+    		showChat(chat,true);
+    	});
+    		initUser(user);
+    		initOnline(users);
+    		initRooms(rooms);
+    	});
+    	function initUser(user){
+    		$(".userinfo h1").html(user.nickname).next().html("ID:"+user.id)
+    		.next().html("胜场:"+user.win+"胜率:"+(user.total ? user.win/user.total : 0) + "%");
+    	}
+    	function initOnline(users){
+    		var html="";
+    		for(var i =0;i<users.length;i++){
+    			var temp = users[i];
+    			html += '<tr>';
+    			html += '<td>'+temp.nickname + '</td>';
+    			html += '<td>'+temp.id+ '</td>';
+    			html += '<td>'+getStatus(temp.status)+ '</td>';
+    			html += '</tr>';	
+    		}
+    		$(".online table").html(html);
+    	}
+    	function getStatus(status){
+    		if(status == 1){
+    			return"在线";
+    		}else if(status == 2){
+    			return"准备中";
+    		}
+    		else if(status == 3){
+    			return"游戏中";
+    		}
+    		else {
+    			return"";
+    		}
+    	}
+    	function initRooms(rooms){
+    		var html ="";
+    		for(var i=0;i<rooms.length;i++){
+    			var temp=rooms[i];
+    			html +='<div>';
+    			html +='<img src="img/room.png"/>';
+    			html +='<p>输光光</p>';
+    			html +='</div>';
+    		}
+    		$(".rooms .body").html(html);
+    	}
+    	function showChat(chat,isme){
+    		if(isme){
+    			$(".chat .body ul").append("<li style='text-align: right;'>"+chat.msg+chat.nickname+"</li>");
+    		}else{
+    			$(".chat .body ul").append("<li >"+chat.msg+chat.nickname+"</li>");
+    		}
+    		
+    	}
+    </script>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
