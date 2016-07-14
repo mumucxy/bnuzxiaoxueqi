@@ -6,6 +6,7 @@
 		<link rel="stylesheet" type="text/css" href="css/game.css"/>
 		<script type="text/javascript" src="js/jquery-1.10.2.min.js" ></script>
 		<script type="text/javascript" src="js/data.js" ></script>
+		<script type="text/javascript" src="js/socket.io.js"></script>
 	</head>
 	<body>
 		<div class="main-con">
@@ -28,6 +29,7 @@
 					<h3>room</h3>
 				</div>
 				<div class="body">
+					
 				</div>
 			</div>
 			<div class="chat">
@@ -35,9 +37,7 @@
 					<h3>chat</h3>
 				</div>
 				<div class="body">
-					<ul>
-
-					</ul>
+					<ul></ul>
 				</div>
 				<div class="footer">
 					<input type="text" name="" id="chatmsg" value=""/>
@@ -50,6 +50,10 @@
 	</body>
     <script type="text/javascript">
     var user = null;
+    var socket = io('http://localhost:3000',{
+    	 	autoConnect:false,
+    	 	reconnection:false
+    	 });	 
     	$(function(){
     	 user =localStorage.getItem("user");
     		if(!user){
@@ -58,17 +62,47 @@
     		}else {
     			user=JSON.parse(user);
     		}
-    		
+    		socket.open();//连接服务器
+    		  socket.on('connect', function(){
+    		  	user.id = socket.id;//为用户赋值ID
+    		  	user.status=1;//在线状态
+              socket.emit("user.online",user);//向服务器发送上线事件
+              initUser(user);
+             });
+    		socket.on("user.online",function(users){
+    			initOnline(users)
+    		});
+    		socket.on("chat.newchat",function(chat){
+    			showChat(chat,false);
+    		});
+    		socket.on("room.rooms",function(rooms){
+    			initRooms(rooms);
+    		});
+    		socket.on("room.exists",function(){
+    			alert("房间存在，创建失败");
+    		});
+    	    socket.on("room.createOK",function(room){
+ 	    	 joinRoom(room,true);
+    	    });
+    	    socket.on("room.joinfalid",function(){
+    	    	alert("房间已满");
+    	    });
+    	     socket.on("room.joinOK",function(room){
+    	    	joinRoom(room,false);
+    	    });
     	$("#sendchat").click(function(){
     		var chat ={
     			nickname:user.nickname,
     			msg:$("#chatmsg").val()
     		}
-    		showChat(chat,true);
-    	});
-    		initUser(user);
-    		initOnline(users);
-    		initRooms(rooms);
+    		msg:$("#chatmsg").val('');
+    		showChat(chat,true);//自己显示
+    		socket.emit("chat.send",chat);
+    	  });
+    	   //创建房间
+    	   $("#createroom").click(function(){
+    	   socket.emit("room.createroom",$("#roomname").val());
+    	   });
     	});
     	function initUser(user){
     		$(".userinfo h1").html(user.nickname).next().html("ID:"+user.id)
@@ -91,28 +125,46 @@
     			return"在线";
     		}else if(status == 2){
     			return"准备中";
-    		}
-    		else if(status == 3){
+    		}else if(status == 3){
     			return"游戏中";
-    		}
-    		else {
+    		}else {
     			return"";
     		}
-    	}
-    	function initRooms(rooms){
+    	}	
+    	function initRooms( rooms ){
     		var html ="";
     		for(var i=0;i<rooms.length;i++){
     			var temp=rooms[i];
-    			html +='<div>';
+    			html +='<div data-roomname='+temp.roomname+'>';
     			html +='<img src="img/room.png"/>';
-    			html +='<p>输光光</p>';
+    			html += '<p>'+ temp.roomname + '</p>';
     			html +='</div>';
     		}
     		$(".rooms .body").html(html);
+    		$(".rooms .body div").click(function(){
+    		
+  	              socket.emit("room.join",$(this).data("roomname"));
+    		});
     	}
+    	function joinRoom(room,iscreate){
+    		var html ="";
+    		html += "玩家一" + room.play1.nickname+'&nbsp;胜场:'+room.play1.win+"<br>PK<br>";
+    		if(room.play2){
+    			html +="玩家二：" + room.play2.nickname +"&nbsp胜场："+ room.play1.win;
+    		}
+    		
+    		if(iscreate){
+    			html +="<button>开始游戏</button>";
+    		}
+    		html +="<button>退出游戏</button>";
+    		
+    		$(".rooms .body").html(html);
+
+    	}
+   
     	function showChat(chat,isme){
     		if(isme){
-    			$(".chat .body ul").append("<li style='text-align: right;'>"+chat.msg+chat.nickname+"</li>");
+    			$(".chat .body ul").append("<li style='text-align: right;'>"+chat.msg+":"+chat.nickname+"</li>");
     		}else{
     			$(".chat .body ul").append("<li >"+chat.msg+chat.nickname+"</li>");
     		}

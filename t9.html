@@ -18,11 +18,17 @@
   socket.on('disconnect', function(){
   	console.log("断开连接");
   });
+  socket.on('messageresponse', function(data){
+  	console.log(data);
+  });
   $("#open").click(function(){
   	socket.open();
   });
    $("#close").click(function(){
   	socket.close();
+  });
+    $("#send").click(function(){
+  	socket.emit("messagerequest","发送消息到服务器");
   });
     });
  
@@ -31,5 +37,6 @@
 	<body>
 	<button id="open">连接</button>
 	<button id="close">断开连接</button>
+	<button id="send">发送消息</button>
 	</body>
 </html>

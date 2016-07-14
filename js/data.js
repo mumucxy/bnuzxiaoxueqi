@@ -27,11 +27,7 @@ var users = [
 ]
 var rooms =[
 	{
-		roomname:'输光光'
-		},{
-		roomname:'输光光'
-		},{
-		roomname:'输光光'
+		
 	}
 
 ]
