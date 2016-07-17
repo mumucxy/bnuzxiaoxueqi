@@ -20,7 +20,7 @@ io.on('connection', function(socket){
    
    
    socket.on('chat.send',function (chat) {
-     var user = users[socket.id.replace("/#",'')];
+     var user = users[socket.id.replace("/#","")];
      socket.to(user.room).emit("chat.newchat",chat);
    });
    
@@ -30,7 +30,7 @@ io.on('connection', function(socket){
        return;
      }
      
-     var user = users[socket.id.replace("/#",'')];
+     var user = users[socket.id.replace("/#","")];
      rooms[roomname]={roomname:roomname,play1:user,play2:null};
         
      //切换房间
@@ -53,7 +53,7 @@ io.on('connection', function(socket){
        socket.emit("room.joinfalid");
        return;
      }
-      var user = users[socket.id.replace("/#",'')]; 
+      var user = users[socket.id.replace("/#","")]; 
      socket.leave(user.room);
      socket.join(roomname);
      user.status = 2;
@@ -69,8 +69,30 @@ io.on('connection', function(socket){
    });
    
   socket.on('disconnect', function(){
-      delete users[socket.id.replace("/#",'')];
+      delete users[socket.id.replace("/#","")];
       io.sockets.emit('user.online',getUsers());
+  });
+  //游戏开始指令
+  socket.on("game.start",function(){
+   var user = users[socket.id.replace("/#","")]; 
+    var room = rooms[user.room];
+    
+    if(room.play1 && room.play2){
+      //向房主发送游戏开始指令
+      socket.emit("game.start",1);//1代表先手执白
+      //向玩家2发送游戏开始指令
+      socket.in(user.room).emit("game.start",2);//2代表后手执黑
+      //修改玩家的状态
+      room.play1.status = 3;
+      room.play2.status = 3;
+      //向所有人广播
+       io.sockets.emit('user.online',getUsers());
+    }
+  });
+  //游戏数据交换指令
+  socket.on("game.changedata",function (data) {
+     var user = users[socket.id.replace("/#","")];
+    socket.in(user.room).emit("game.changedata",data);
   });
 });
 

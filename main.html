@@ -7,6 +7,7 @@
 		<script type="text/javascript" src="js/jquery-1.10.2.min.js" ></script>
 		<script type="text/javascript" src="js/data.js" ></script>
 		<script type="text/javascript" src="js/socket.io.js"></script>
+		<script type="text/javascript" src="js/five.js" ></script>
 	</head>
 	<body>
 		<div class="main-con">
@@ -46,6 +47,8 @@
 			</div>
 			<input type="text" name="" id="roomname" value="" />
 			<button id="createroom">创建</button>
+			
+			<div class="game" id="game"></div>
 		</div>
 	</body>
     <script type="text/javascript">
@@ -89,6 +92,14 @@
     	    });
     	     socket.on("room.joinOK",function(room){
     	    	joinRoom(room,false);
+    	    });
+    	    socket.on("game.start",function(flag){//1代表先手2代表后手
+    	    	gameInit("game",flag);
+    	    	
+    	    });
+    	    socket.on("game.changedata",function(data){
+    	    	drawFive(data.row,data.col,data.flag);
+    	    	status ="run";
     	    });
     	$("#sendchat").click(function(){
     		var chat ={
@@ -154,11 +165,18 @@
     		}
     		
     		if(iscreate){
-    			html +="<button>开始游戏</button>";
+    		html +="<button id='gamestart'>开始游戏</button>";
     		}
-    		html +="<button>退出游戏</button>";
-    		
+    		html +="<button id='leaveroom'>退出游戏</button>";
+    		 
     		$(".rooms .body").html(html);
+    		
+    		$("#gamestart").click(function(){
+    			socket.emit("game.start");
+    		});
+    		$("#leaveroom").click(function(){
+    			
+    		});
 
     	}
    
@@ -166,7 +184,7 @@
     		if(isme){
     			$(".chat .body ul").append("<li style='text-align: right;'>"+chat.msg+":"+chat.nickname+"</li>");
     		}else{
-    			$(".chat .body ul").append("<li >"+chat.msg+chat.nickname+"</li>");
+    			$(".chat .body ul").append("<li >"+chat.nickname+":"+chat.msg+"</li>");
     		}
     		
     	}
