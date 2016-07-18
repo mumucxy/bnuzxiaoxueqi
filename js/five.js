@@ -103,7 +103,9 @@ function gameInit(id,_flag){
 			flag:flag
 		});
 		status = "wait";
-		gameOver(row,col,flag);
+		if(gameOver(row,col,flag)){//游戏结束
+			socket.emit("game.over")
+		}
 		
 		});
        
@@ -125,7 +127,7 @@ function drawFive(row,col,flag){
 		pen.closePath();
 }
 function gameOver(row,col,flag){
-	//左右
+	//上下
 	var count = 1;
 	for(var i =row-1;i>=0;i--){
      if(data[i][col] == flag){
@@ -143,10 +145,10 @@ function gameOver(row,col,flag){
 	}
 	
 	if(count>=5){
-		alert("游戏结束");
-		return;
+		
+		return true;
 	}
-	//上下
+	//左右
 	var count = 1;
 	for(var i =col-1;i>=0;i--){
      if(data[row][i] == flag){
@@ -164,8 +166,8 @@ function gameOver(row,col,flag){
 	}
 	
 	if(count>=5){
-		alert("游戏结束");
-		return;
+		
+		return true;
 	}
 	//左上右下
 	var count = 1;
@@ -185,8 +187,8 @@ function gameOver(row,col,flag){
     }
 	
 	if(count>=5){
-		alert("游戏结束");
-		return;
+		
+		return true;
 	}
 //	右上左下
 	var count = 1;
@@ -206,9 +208,11 @@ function gameOver(row,col,flag){
     }
 	
 	if(count>=5){
-		alert("游戏结束");
-		return;
+
+		return true;
 	}
+	
+	return false;
 }
 
 

@@ -19,7 +19,7 @@
 			<div class="online">
 				<div class="head">
 					<h3>online</h3>
-					<span>76/98</span>
+					<span></span>
 				</div>
 				<div class="body">
 					<table>	</table>
@@ -41,18 +41,18 @@
 					<ul></ul>
 				</div>
 				<div class="footer">
-					<input type="text" name="" id="chatmsg" value=""/>
-					<button type="button" id="sendchat">send</button>
+					<input type="text" name="" id="chatmsg" placeholder="请输入信息"/>
+					<button  id="sendchat">send</button>
 				</div>
 			</div>
-			<input type="text" name="" id="roomname" value="" />
-			<button id="createroom">创建</button>
+			<input type="text" id="roomname" class="roomname" placeholder="请输入房间名" />
+			<button class="createroom" id="createroom">创建</button>
 			
 			<div class="game" id="game"></div>
 		</div>
 	</body>
     <script type="text/javascript">
-    var user = null;
+    var user =socket= null;
     var socket = io('http://localhost:3000',{
     	 	autoConnect:false,
     	 	reconnection:false
@@ -101,6 +101,11 @@
     	    	drawFive(data.row,data.col,data.flag);
     	    	status ="run";
     	    });
+    	    socket.on("game.over",function(user){
+    	    	//清除棋盘
+    	    	$("#game").html("");
+    	    	initUser(user);
+    	    });
     	$("#sendchat").click(function(){
     		var chat ={
     			nickname:user.nickname,
@@ -126,10 +131,11 @@
     			html += '<tr>';
     			html += '<td>'+temp.nickname + '</td>';
     			html += '<td>'+temp.id+ '</td>';
-    			html += '<td>'+getStatus(temp.status)+ '</td>';
+    			html += '<td style="color:green;"> '+getStatus(temp.status)+ '</td>';
     			html += '</tr>';	
     		}
     		$(".online table").html(html);
+    		$(".online .head span").html(users.length + "/人");
     	}
     	function getStatus(status){
     		if(status == 1){
