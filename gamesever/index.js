@@ -3,19 +3,19 @@ var server = require('http').createServer();
 var io = require('socket.io')(server);
 
 var users ={};
-var rooms ={};
+var rooms ={}
 //socket就是客户端与服务器的通道
 io.on('connection', function(socket){
   socket.join("public");
   
   //自定义事件
    socket.on('user.online', function(user){
-     user.room='public';
+     user.room="public";
      users[user.id]=user;//保存用户信息
      //广播在线用户信息
      io.sockets.emit('user.online',getUsers());
      //广播房间创建成功消息
-     io.sockets.in('public').emit("room.rooms",getRooms());
+     socket.emit("room.rooms",getRooms());
    });
    
    
@@ -67,11 +67,95 @@ io.on('connection', function(socket){
       //通知所有，用户状态信息
      io.sockets.emit('user.online',getUsers());
    });
-   
-  socket.on('disconnect', function(){
-      delete users[socket.id.replace("/#","")];
-      io.sockets.emit('user.online',getUsers());
+   socket.on("room.leave",function(){
+      var user = users[socket.id.replace("/#","")];
+      var room = rooms[user.room];
+      
+      if( user.id == room.play1.id ) { //房主
+          delete rooms[user.room];
+          if( room.play2 ) {
+              room.play2.status = 1;
+              room.play2.room = "public";
+              //找到对方的socket，离开房间进入public
+              var so = io.sockets.sockets["/#" + room.play2.id];
+              so.leave(user.room);
+              so.join("public");
+          }
+      } else { //加入者
+          room.play2 = null;
+          socket.in(user.room).emit("room.createOK",room);
+      }
+
+      //自己退出房间
+      socket.leave(user.room);
+      socket.join("public");
+      user.status = 1;
+      user.room = "public";
+      //自己退出房间，刷新房间列表
+      io.sockets.in("public").emit("room.rooms",getRooms());
+      io.sockets.emit("user.online",getUsers());
   });
+
+  socket.on('disconnect', function(){
+      var user = users[socket.id.replace("/#","")];
+      if( user.status == 3 ) { //游戏状态
+          var room = rooms[user.room];
+          if( user.id == room.play1.id ) {
+              delete rooms[user.room];
+              room.play2.status = 1;
+              room.play2.room = "public";
+              room.play2.win += 1;
+              room.play2.total += 1;
+              //找到对方的socket，离开房间进入public
+              var so = io.sockets.sockets["/#" + room.play2.id];
+              so.leave(user.room);
+              so.join("public");
+
+              so.emit("game.over",room.play2);
+              so.emit("chat.newchat",{
+                nickname : '系统消息',
+                msg : "您的对手被网络打败了"
+              });
+              io.sockets.in("public").emit("room.change",getRooms()); 
+          } else {
+              room.play1.status = 2;
+              room.play1.win += 1;
+              room.play1.total += 1;
+              
+              room.play2 = null;
+              socket.in(user.room).emit("game.over",room.play1);
+              socket.in(user.room).emit("room.createOK",room);
+              socket.in(user.room).emit("chat.newchat",{
+                nickname : '系统消息',
+                msg : "您的对手被网络打败了"
+              });
+          }
+      }
+
+      if( user.status == 2 ) { //等待状态
+          var room = rooms[user.room];
+          if( user.id == room.play1.id ) {
+              delete rooms[user.room];
+              if( room.play2 ) {
+                room.play2.status = 1;
+                room.play2.room = "public";
+                //找到对方的socket，离开房间进入public
+                var so = io.sockets.sockets["/#" + room.play2.id];
+                so.leave(user.room);
+                so.join("public");
+              }
+              io.sockets.in("public").emit("room.change",getRooms());
+          } else {
+              room.play2 = null;
+              socket.in(user.room).emit("room.createOK",room);
+          }
+      }
+
+      //删除自己通知所有人
+      delete users[socket.id.replace("/#","")];      
+      io.sockets.emit("user.online",getUsers());
+  });
+
   //游戏开始指令
   socket.on("game.start",function(){
    var user = users[socket.id.replace("/#","")]; 
